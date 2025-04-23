@@ -1,0 +1,4 @@
+__pycache__/
+data/embeddings/
+data/webpages/raw_html/
+.venv
