@@ -40,15 +40,25 @@ def build_index(chunks):
         for chunk in chunks:
             f.write(chunk.replace("\n", " ") + "\n")
 
-# ----- Step 3: LLM call via Ollama -----
 def generate_answer_with_llm(context, query, model=OLLAMA_MODEL):
-    prompt = f"""You are a helpful assistant. Answer the question using only the following context.
+    prompt = f"""You are a helpful assistant answering user questions using only the provided FAQ content.
 
-Context:
+### Your instructions:
+- Always start with: **"According to my sources..."**
+- Respond in **Markdown format**
+- **Only quote directly** from the context
+- **Strongly emphasize any part labeled `Summary:`** — show it first if relevant
+- Always cite the **FAQ file name** the quote came from
+- Do **not** make anything up — use only the quotes provided
+
+Here is the context (each section includes the source file name):
+
 {context}
 
 Question: {query}
-Answer:"""
+
+Answer in markdown (with Summary emphasized first if found):
+"""
 
     res = requests.post(
         "http://localhost:11434/api/generate",
