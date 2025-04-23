@@ -5,11 +5,13 @@ from bs4 import BeautifulSoup
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
+import requests
 
 # ----- Settings -----
 MARKDOWN_DIR = "data/markdown/faqs"
 CHUNK_FILE = "data/chunks/markdown_chunks.txt"
 INDEX_FILE = "data/embeddings/markdown_index.faiss"
+OLLAMA_MODEL = "mistral"
 
 # ----- Step 1: Load and clean Markdown -----
 def extract_text_from_md(file_path):
@@ -38,7 +40,23 @@ def build_index(chunks):
         for chunk in chunks:
             f.write(chunk.replace("\n", " ") + "\n")
 
-# ----- Step 3: Ask questions -----
+# ----- Step 3: LLM call via Ollama -----
+def generate_answer_with_llm(context, query, model=OLLAMA_MODEL):
+    prompt = f"""You are a helpful assistant. Answer the question using only the following context.
+
+Context:
+{context}
+
+Question: {query}
+Answer:"""
+
+    res = requests.post(
+        "http://localhost:11434/api/generate",
+        json={"model": model, "prompt": prompt, "stream": False},
+    )
+    return res.json()["response"]
+
+# ----- Step 4: Ask questions -----
 def ask_question(query, k=3):
     model = SentenceTransformer('all-MiniLM-L6-v2')
     index = faiss.read_index(INDEX_FILE)
@@ -47,12 +65,14 @@ def ask_question(query, k=3):
 
     query_vec = model.encode([query])
     D, I = index.search(np.array(query_vec), k)
-    results = [chunks[i] for i in I[0]]
+    retrieved = [chunks[i] for i in I[0]]
+    context = "\n\n".join(retrieved)
 
-    print("\n🔎 Most relevant chunks:\n")
-    for r in results:
-        print("-", r)
-    print("\n💬 You can now generate an answer with an LLM using this context.")
+    print("\n🧠 Answering with context:\n")
+    print(context)
+    print("\n💬 LLM Answer:\n")
+    answer = generate_answer_with_llm(context, query)
+    print(answer)
 
 # ----- Entrypoint -----
 if __name__ == "__main__":
