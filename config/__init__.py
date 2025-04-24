@@ -1,0 +1,5 @@
+MARKDOWN_DIR = "data/markdown/faqs"
+CHUNK_FILE = "data/chunks/markdown_chunks.txt"
+INDEX_FILE = "data/embeddings/markdown_index.faiss"
+OLLAMA_MODEL = "mistral"
+OLLAMA_URL = "http://localhost:11434"
