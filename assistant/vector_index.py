@@ -1,10 +1,13 @@
 import os
 import faiss
 import numpy as np
+import json
 from config import INDEX_FILE, CHUNK_FILE, WEBPAGES_LIST
 from .markdown_loader import extract_chunks_from_markdown
 from .webpage_loader import fetch_webpage_text
-import json
+from infrastructure.db import SessionLocal
+from infrastructure.db.models import Chunk
+from sentence_transformers import SentenceTransformer
 
 
 def ensure_index_exists(model):
@@ -33,6 +36,9 @@ def build_index(model, chunks):
     index.add(np.array(embeddings))
     faiss.write_index(index, INDEX_FILE)
 
+    for i, chunk in enumerate(chunks):
+        save_chunk(chunk, embeddings[i])
+
     with open(CHUNK_FILE, "w", encoding="utf-8") as f:
         for chunk in chunks:
             f.write(chunk.replace("\n", " ") + "\n")
@@ -40,3 +46,21 @@ def build_index(model, chunks):
 
 def read_index():
     return faiss.read_index(INDEX_FILE)
+
+
+def save_chunk(content, embedding):
+    session = SessionLocal()
+
+    try:
+        chunk = Chunk(
+            content=content, source="https://example.com/test", embedding=embedding
+        )
+        session.add(chunk)
+        session.commit()
+        session.refresh(chunk)
+        print(f"✅ Chunk created with ID: {chunk.id}")
+    except Exception as e:
+        session.rollback()
+        print(f"❌ Failed to create chunk: {e}")
+    finally:
+        session.close()
