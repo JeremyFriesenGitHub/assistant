@@ -7,7 +7,6 @@ from .markdown_loader import extract_chunks_from_markdown
 from .webpage_loader import fetch_webpage_text
 from infrastructure.db import SessionLocal
 from infrastructure.db.models import Chunk
-from sentence_transformers import SentenceTransformer
 
 
 def ensure_index_exists(model):
