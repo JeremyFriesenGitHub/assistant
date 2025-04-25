@@ -5,7 +5,6 @@ from infrastructure.celery import celery
 
 @celery.task
 def ingest_webpage(url):
-    # print(f"[DEBUG] Would fetch: {url}")
     try:
         with SourceRepository() as repo:
             WebpageIngestionService(url, repo).process()

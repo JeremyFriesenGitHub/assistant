@@ -1,5 +1,4 @@
 from assistant import Assistant
-from ingestion import create_index
 from infrastructure.db.source_repository import SourceRepository
 
 if __name__ == "__main__":
