@@ -1,11 +1,32 @@
 name: CI
 
-'on':
-  - push
+on:
+  push:
+  pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: ankane/pgvector
+        ports:
+          - 5445:5432
+        env:
+          POSTGRES_USER: myuser
+          POSTGRES_PASSWORD: mypassword
+          POSTGRES_DB: mydatabase
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6370:6379
 
     steps:
     - name: Checkout code
@@ -22,10 +43,17 @@ jobs:
         pip install -r requirements.txt
         pip install black pytest
 
+    - name: Wait for Postgres and Redis to be healthy
+      run: |
+        sleep 5
+
     - name: Check code formatting with Black
       run: |
-        black --check src tests
+        black --check .
 
     - name: Run tests with pytest
+      env:
+        DATABASE_URL: postgresql://myuser:mypassword@localhost:5445/mydatabase
+        CELERY_BROKER_URL: redis://localhost:6370/0
       run: |
         PYTHONPATH=src pytest
