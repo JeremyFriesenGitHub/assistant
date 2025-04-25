@@ -9,3 +9,5 @@ alembic -c src/infrastructure/db/alembic.ini upgrade head
 
 PYTHONPATH=src celery -A infrastructure.celery worker --loglevel=info --pool=solo
 PYTHONPATH=src celery -A infrastructure.celery worker --loglevel=info
+
+pip freeze > requirements.txt
