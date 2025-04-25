@@ -6,7 +6,7 @@ from config import INDEX_FILE, CHUNK_FILE, WEBPAGES_LIST
 from .markdown_loader import extract_chunks_from_markdown
 from .webpage_loader import fetch_webpage_text
 from infrastructure.db import SessionLocal
-from infrastructure.db.models import Chunk
+from infrastructure.db.models import Chunk, Source
 
 
 def ensure_index_exists(model):
@@ -19,47 +19,56 @@ def ensure_index_exists(model):
             for url in urls:
                 print(f"🌐 Fetching content from: {url}")
                 try:
-                    for chunk in fetch_webpage_text(url):
-                        chunks.append(f"[source:{url}] {chunk}")
+                    webpage_chunks = fetch_webpage_text(url)
+                    save_chunks_with_source(model, url, webpage_chunks)
                 except Exception as e:
                     print(f"⚠️ Failed to fetch {url}: {e}")
 
-        build_index(model, chunks)
         print("✅ Done. You can now ask questions.")
 
 
-def build_index(model, chunks):
-    embeddings = model.encode(chunks)
-    dim = embeddings[0].shape[0]
-    index = faiss.IndexFlatL2(dim)
-    index.add(np.array(embeddings))
-    faiss.write_index(index, INDEX_FILE)
+def save_chunks_with_source(model, reference, chunks):
+    session = SessionLocal()
 
-    for i, chunk in enumerate(chunks):
-        save_chunk(chunk, embeddings[i])
+    try:
+        # Create or get source
+        source = session.query(Source).filter_by(reference=reference).first()
+        if not source:
+            source = Source(
+                name=reference.split("/")[-1], type="webpage", reference=reference
+            )
+            session.add(source)
+            session.commit()
+            session.refresh(source)
 
-    with open(CHUNK_FILE, "w", encoding="utf-8") as f:
-        for chunk in chunks:
-            f.write(chunk.replace("\n", " ") + "\n")
+        # Build or load FAISS index
+        embeddings = model.encode(chunks)
+        dim = embeddings[0].shape[0]
+        index = (
+            faiss.read_index(INDEX_FILE)
+            if os.path.exists(INDEX_FILE)
+            else faiss.IndexFlatL2(dim)
+        )
+
+        for content, embedding in zip(chunks, embeddings):
+            chunk = Chunk(content=content.strip(), source=source, embedding=embedding)
+            session.add(chunk)
+            index.add(np.array([embedding]))
+
+        session.commit()
+        faiss.write_index(index, INDEX_FILE)
+
+        # Save raw chunks to CHUNK_FILE (for debug/logging)
+        with open(CHUNK_FILE, "a", encoding="utf-8") as f:
+            for chunk in chunks:
+                f.write(chunk.replace("\n", " ") + "\n")
+
+    except Exception as e:
+        session.rollback()
+        print(f"❌ Failed to save chunks for {reference}: {e}")
+    finally:
+        session.close()
 
 
 def read_index():
     return faiss.read_index(INDEX_FILE)
-
-
-def save_chunk(content, embedding):
-    session = SessionLocal()
-
-    try:
-        chunk = Chunk(
-            content=content, source="https://example.com/test", embedding=embedding
-        )
-        session.add(chunk)
-        session.commit()
-        session.refresh(chunk)
-        print(f"✅ Chunk created with ID: {chunk.id}")
-    except Exception as e:
-        session.rollback()
-        print(f"❌ Failed to create chunk: {e}")
-    finally:
-        session.close()
