@@ -27,7 +27,7 @@ class WebpageIngestionService:
         embeddings = SentenceTransformer(EMBEDDING_MODEL).encode(webpage_chunks)
 
         with SourceRepository() as repo:
-            source = repo.get_or_create_source(webpage_title, url)
+            source = repo.get_or_create_source(webpage_title, self.url)
             repo.save_chunks(source, webpage_chunks, embeddings)
 
     def __format_chunks_from_webpage(self, text):
