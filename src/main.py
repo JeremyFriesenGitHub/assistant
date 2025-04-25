@@ -1,12 +1,12 @@
-from assistant import Assistant
+from agent import Agent
 from infrastructure.db.source_repository import SourceRepository
 
 if __name__ == "__main__":
     with SourceRepository() as repository:
-        assistant = Assistant(repository)
+        agent = Agent(repository)
 
         while True:
             q = input("\nAsk a question (or 'exit'): ")
             if q.lower() in {"exit", "quit"}:
                 break
-            assistant.ask_question(q)
+            agent.ask_question(q)
