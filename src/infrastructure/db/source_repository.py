@@ -20,12 +20,10 @@ class SourceRepository:
     def has_chunks(self) -> bool:
         return self.session.query(Chunk).first() is not None
 
-    def get_or_create_source(self, reference: str) -> Source:
+    def get_or_create_source(self, name, reference: str) -> Source:
         source = self.session.query(Source).filter_by(reference=reference).first()
         if not source:
-            source = Source(
-                name=reference.split("/")[-1], type="webpage", reference=reference
-            )
+            source = Source(name=name, type="webpage", reference=reference)
             self.session.add(source)
             self.session.commit()
             self.session.refresh(source)

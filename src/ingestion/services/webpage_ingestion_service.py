@@ -1,8 +1,9 @@
 from bs4 import BeautifulSoup
 from sentence_transformers import SentenceTransformer
 from config import EMBEDDING_MODEL
-from infrastructure.web import fetch_webpage_text
+from infrastructure.web import fetch_webpage
 from infrastructure.db.source_repository import SourceRepository
+from ingestion.services.webpage_parser_service import WebpageParserService
 
 
 class WebpageIngestionService:
@@ -13,24 +14,21 @@ class WebpageIngestionService:
     def process(self):
         try:
             print(f"🌐 Fetching content from: {self.url}")
-            self.__ingest_webpage(self.url)
+            self.__ingest_webpage()
         except Exception as e:
             print(f"⚠️ Failed to fetch {self.url}: {e}")
 
-    def __ingest_webpage(self, url):
-        webpage_text = fetch_webpage_text(url)
-        webpage_chunks = self.__format_chunks_from_webpage_text(webpage_text)
+    def __ingest_webpage(self):
+        webpage = fetch_webpage(self.url)
+        webpage_service = WebpageParserService(webpage)
+        webpage_title = webpage_service.get_title()
+        webpage_text = webpage_service.get_text()
+        webpage_chunks = self.__format_chunks_from_webpage(webpage_text)
         embeddings = SentenceTransformer(EMBEDDING_MODEL).encode(webpage_chunks)
 
         with SourceRepository() as repo:
-            source = repo.get_or_create_source(url)
+            source = repo.get_or_create_source(webpage_title, url)
             repo.save_chunks(source, webpage_chunks, embeddings)
 
-    def __format_chunks_from_webpage_text(self, webpage_text):
-        soup = BeautifulSoup(webpage_text, "html.parser")
-        for tag in soup(
-            ["script", "style", "header", "footer", "nav", "noscript", "svg", "form"]
-        ):
-            tag.decompose()
-        text = soup.get_text(separator="\n")
+    def __format_chunks_from_webpage(self, text):
         return [chunk.strip() for chunk in text.split("\n\n") if chunk.strip()]
