@@ -3,7 +3,7 @@ from infrastructure.ollama import create_llm_response
 from infrastructure.db.source_repository import SourceRepository
 
 
-class QuestionService:
+class ResponseService:
     def __init__(self, repository: SourceRepository):
         self.repository = repository
 

@@ -1,9 +1,9 @@
-from agent import QuestionService
+from agent import ResponseService
 from infrastructure.db.source_repository import SourceRepository
 
 if __name__ == "__main__":
     with SourceRepository() as repository:
-        agent = QuestionService(repository)
+        agent = ResponseService(repository)
 
         while True:
             q = input("\nAsk a question (or 'exit'): ")
