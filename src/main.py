@@ -1,6 +1,8 @@
 from assistant import Assistant
+from ingestion.vector_index import ensure_index_exists
 
 if __name__ == "__main__":
+    ensure_index_exists()
     assistant = Assistant()
 
     while True:

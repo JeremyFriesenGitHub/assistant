@@ -2,14 +2,14 @@ import os
 import faiss
 import numpy as np
 import json
-from config import INDEX_FILE, CHUNK_FILE, WEBPAGES_LIST
+from config import INDEX_FILE, CHUNK_FILE, WEBPAGES_LIST, EMBEDDING_MODEL
 from .markdown_loader import extract_chunks_from_markdown
 from .webpage_loader import fetch_webpage_text
 from infrastructure.db import SessionLocal
 from infrastructure.db.models import Chunk, Source
 
 
-def ensure_index_exists(model):
+def ensure_index_exists():
     if not os.path.exists(INDEX_FILE):
         print("📦 Building index from Markdown...")
         chunks = extract_chunks_from_markdown()
@@ -20,14 +20,14 @@ def ensure_index_exists(model):
                 print(f"🌐 Fetching content from: {url}")
                 try:
                     webpage_chunks = fetch_webpage_text(url)
-                    save_chunks_with_source(model, url, webpage_chunks)
+                    save_chunks_with_source(url, webpage_chunks)
                 except Exception as e:
                     print(f"⚠️ Failed to fetch {url}: {e}")
 
         print("✅ Done. You can now ask questions.")
 
 
-def save_chunks_with_source(model, reference, chunks):
+def save_chunks_with_source(reference, chunks):
     session = SessionLocal()
 
     try:
@@ -42,7 +42,7 @@ def save_chunks_with_source(model, reference, chunks):
             session.refresh(source)
 
         # Build or load FAISS index
-        embeddings = model.encode(chunks)
+        embeddings = EMBEDDING_MODEL.encode(chunks)
         dim = embeddings[0].shape[0]
         index = (
             faiss.read_index(INDEX_FILE)
@@ -51,7 +51,8 @@ def save_chunks_with_source(model, reference, chunks):
         )
 
         for content, embedding in zip(chunks, embeddings):
-            chunk = Chunk(content=content.strip(), source=source, embedding=embedding)
+            cleaned_content = content.replace("\n", " ").strip()
+            chunk = Chunk(content=cleaned_content, source=source, embedding=embedding)
             session.add(chunk)
             index.add(np.array([embedding]))
 
