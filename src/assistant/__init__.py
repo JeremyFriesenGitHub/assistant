@@ -1,4 +1,3 @@
-from config import EMBEDDING_MODEL
 from .prompts import create_prompt
 from infrastructure.ollama import create_llm_response
 from infrastructure.db.source_repository import SourceRepository

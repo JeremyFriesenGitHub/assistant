@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+from sentence_transformers import SentenceTransformer
 from config import EMBEDDING_MODEL
 from infrastructure.web import fetch_webpage_text
 from infrastructure.db.source_repository import SourceRepository
@@ -19,7 +20,7 @@ class WebpageIngestionService:
     def __ingest_webpage(self, url):
         webpage_text = fetch_webpage_text(url)
         webpage_chunks = self.__format_chunks_from_webpage_text(webpage_text)
-        embeddings = EMBEDDING_MODEL.encode(webpage_chunks)
+        embeddings = SentenceTransformer(EMBEDDING_MODEL).encode(webpage_chunks)
 
         with SourceRepository() as repo:
             source = repo.get_or_create_source(url)

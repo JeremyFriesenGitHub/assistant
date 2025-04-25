@@ -1,5 +1,6 @@
 from typing import List
 import numpy as np
+from sentence_transformers import SentenceTransformer
 from sqlalchemy import select
 from infrastructure.db import SessionLocal
 from infrastructure.db.models import Chunk, Source
@@ -38,7 +39,7 @@ class SourceRepository:
         self.session.commit()
 
     def get_top_k_chunks_by_similarity(self, query: str, k: int = 3) -> List[Chunk]:
-        query_vector_embedding = EMBEDDING_MODEL.encode([query])[0]
+        query_vector_embedding = SentenceTransformer(EMBEDDING_MODEL).encode([query])[0]
         stmt = (
             select(Chunk)
             .order_by(Chunk.embedding.l2_distance(np.array(query_vector_embedding)))

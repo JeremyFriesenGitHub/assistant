@@ -3,8 +3,6 @@ from ingestion import create_index
 from infrastructure.db.source_repository import SourceRepository
 
 if __name__ == "__main__":
-    create_index()
-
     with SourceRepository() as repository:
         assistant = Assistant(repository)
 
