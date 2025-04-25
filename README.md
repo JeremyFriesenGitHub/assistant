@@ -11,3 +11,5 @@ PYTHONPATH=src celery -A infrastructure.celery worker --loglevel=info --pool=sol
 PYTHONPATH=src celery -A infrastructure.celery worker --loglevel=info
 
 pip freeze > requirements.txt
+
+PYTHONPATH=src pytest
