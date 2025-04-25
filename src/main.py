@@ -1,12 +1,15 @@
 from assistant import Assistant
-from ingestion.vector_index import ensure_index_exists
+from ingestion import create_index
+from infrastructure.db.source_repository import SourceRepository
 
 if __name__ == "__main__":
-    ensure_index_exists()
-    assistant = Assistant()
+    create_index()
 
-    while True:
-        q = input("\nAsk a question (or 'exit'): ")
-        if q.lower() in {"exit", "quit"}:
-            break
-        assistant.ask_question(q)
+    with SourceRepository() as repository:
+        assistant = Assistant(repository)
+
+        while True:
+            q = input("\nAsk a question (or 'exit'): ")
+            if q.lower() in {"exit", "quit"}:
+                break
+            assistant.ask_question(q)
