@@ -42,7 +42,7 @@ PYTHONPATH=src celery -A infrastructure.celery worker --loglevel=info --pool=sol
 ### Production-like (multi-threaded)
 
 ```bash
-PYTHONPATH=src celery -A infrastructure.celery worker --loglevel=info
+PYTHONPATH=src celery -A services.celery worker --pool=threads --concurrency=12
 ```
 
 ## 5. Running Tests
