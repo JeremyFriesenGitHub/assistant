@@ -30,11 +30,14 @@ def fake_webpage_html():
 
 @pytest.fixture
 def setup_mocks(fake_webpage_html):
-    with patch(
-        "ingestion.services.webpage_ingestion_service.fetch_webpage"
-    ) as mock_fetch_webpage, patch(
-        "ingestion.services.webpage_ingestion_service.SentenceTransformer"
-    ) as mock_sentence_transformer:
+    with (
+        patch(
+            "ingestion.services.webpage_ingestion_service.fetch_webpage"
+        ) as mock_fetch_webpage,
+        patch(
+            "ingestion.services.webpage_ingestion_service.SentenceTransformer"
+        ) as mock_sentence_transformer,
+    ):
 
         # Setup fetch_webpage mock
         mock_fetch_webpage.return_value = BeautifulSoup(
