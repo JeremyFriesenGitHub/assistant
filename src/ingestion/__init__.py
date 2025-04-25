@@ -19,27 +19,34 @@ def create_index():
 
     print("📦 Ingesting data and generating embeddings...")
 
-    with open(WEBPAGES_LIST, "r", encoding="utf-8") as f:
-        urls = json.load(f)
-        for url in urls:
-            ingest_webpage(url)
+    urls = load_webpage_urls()
+    for url in urls:
+        fetch_and_ingest(url)
 
     print("✅ Done. All chunks saved to the database.")
 
 
-def ingest_webpage(url):
-    print(f"🌐 Fetching content from: {url}")
+def load_webpage_urls():
+    with open(WEBPAGES_LIST, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def fetch_and_ingest(url):
     try:
-        webpage_text = fetch_webpage_text(url)
-        webpage_chunks = format_chunks_from_webpage_text(webpage_text)
-        embeddings = EMBEDDING_MODEL.encode(webpage_chunks)
-
-        with SourceRepository() as repo:
-            source = repo.get_or_create_source(url)
-            repo.save_chunks(source, webpage_chunks, embeddings)
-
+        print(f"🌐 Fetching content from: {url}")
+        ingest_webpage(url)
     except Exception as e:
         print(f"⚠️ Failed to fetch {url}: {e}")
+
+
+def ingest_webpage(url):
+    webpage_text = fetch_webpage_text(url)
+    webpage_chunks = format_chunks_from_webpage_text(webpage_text)
+    embeddings = EMBEDDING_MODEL.encode(webpage_chunks)
+
+    with SourceRepository() as repo:
+        source = repo.get_or_create_source(url)
+        repo.save_chunks(source, webpage_chunks, embeddings)
 
 
 def format_chunks_from_webpage_text(webpage_text):
