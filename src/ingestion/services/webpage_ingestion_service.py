@@ -1,4 +1,3 @@
-from bs4 import BeautifulSoup
 from sentence_transformers import SentenceTransformer
 from config import EMBEDDING_MODEL
 from infrastructure.web import fetch_webpage
@@ -26,7 +25,7 @@ class WebpageIngestionService:
         webpage_chunks = self.__format_chunks_from_webpage(webpage_text)
         embeddings = SentenceTransformer(EMBEDDING_MODEL).encode(webpage_chunks)
 
-        with SourceRepository() as repo:
+        with self.repository as repo:
             source = repo.get_or_create_source(webpage_title, self.url)
             repo.save_chunks(source, webpage_chunks, embeddings)
 
