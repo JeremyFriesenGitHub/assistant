@@ -21,6 +21,9 @@ class Source(Base):
         onupdate=func.now(),
         nullable=False,
     )
+    last_synced_at = Column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
 
     chunks = relationship("Chunk", back_populates="source")
 
