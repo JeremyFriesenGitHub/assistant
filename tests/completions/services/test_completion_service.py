@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from completions import ResponseService
+from completions import CompletionService
 
 
 @pytest.fixture
@@ -16,20 +16,21 @@ def fake_repository():
 
 @pytest.fixture
 def service(fake_repository):
-    return ResponseService(repository=fake_repository)
+    return CompletionService(repository=fake_repository)
 
 
 @patch(
-    "completions.services.response_service.create_completion", return_value="LLM Answer"
+    "completions.services.completion_service.create_completion",
+    return_value="LLM Answer",
 )
 @patch(
-    "completions.services.response_service.create_prompt",
+    "completions.services.completion_service.create_prompt",
     return_value="Generated Prompt",
 )
-def test_ask_question(mock_create_prompt, mock_create_completion, service, capsys):
+def test_create_completion(mock_create_prompt, mock_create_completion, service, capsys):
     """Should call the LLM with the correct prompt and print the answer."""
 
-    service.ask_question("What is AI?", k=3)
+    service.create_completion("What is AI?", k=3)
 
     service.repository.get_top_k_chunks_by_similarity.assert_called_once_with(
         "What is AI?", 3
@@ -45,6 +46,6 @@ def test_ask_question(mock_create_prompt, mock_create_completion, service, capsy
 def test_prepare_prompt_context(service):
     """Should prepare the prompt context correctly."""
 
-    context = service._ResponseService__prepare_prompt_context("test query", k=3)
+    context = service._CompletionService__prepare_prompt_context("test query", k=3)
 
     assert context == "Chunk 1\n\nChunk 2\n\nChunk 3"

@@ -1,1 +1,1 @@
-from .response_service import ResponseService
+from .completion_service import CompletionService

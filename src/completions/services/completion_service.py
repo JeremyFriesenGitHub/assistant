@@ -3,11 +3,11 @@ from infrastructure.ollama import create_completion
 from infrastructure.db.source_repository import SourceRepository
 
 
-class ResponseService:
+class CompletionService:
     def __init__(self, repository: SourceRepository):
         self.repository = repository
 
-    def ask_question(self, query, k=3):
+    def create_completion(self, query, k=3):
         prompt_context = self.__prepare_prompt_context(query, k)
 
         print("\n🧠 Answering with context:\n")
