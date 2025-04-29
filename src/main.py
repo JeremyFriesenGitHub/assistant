@@ -9,4 +9,4 @@ if __name__ == "__main__":
             q = input("\nAsk a question (or 'exit'): ")
             if q.lower() in {"exit", "quit"}:
                 break
-            service.create_completion(q)
+            service.create(q)

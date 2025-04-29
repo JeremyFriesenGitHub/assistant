@@ -27,10 +27,10 @@ def service(fake_repository):
     "completions.services.completion_service.create_prompt",
     return_value="Generated Prompt",
 )
-def test_create_completion(mock_create_prompt, mock_create_completion, service, capsys):
+def test_create(mock_create_prompt, mock_create_completion, service, capsys):
     """Should call the LLM with the correct prompt and print the answer."""
 
-    service.create_completion("What is AI?", k=3)
+    service.create("What is AI?", k=3)
 
     service.repository.get_top_k_chunks_by_similarity.assert_called_once_with(
         "What is AI?", 3

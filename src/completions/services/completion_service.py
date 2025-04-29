@@ -8,7 +8,7 @@ class CompletionService:
     def __init__(self, repository: SourceRepository):
         self.repository = repository
 
-    def create_completion(self, query, k=3):
+    def create(self, query, k=3):
         prompt_context = ContextGenerationService(query, self.repository).process(k)
 
         print("\n🧠 Answering with context:\n")
