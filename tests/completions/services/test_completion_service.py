@@ -39,13 +39,6 @@ def test_create_completion(mock_create_prompt, mock_create_completion, service, 
         "Chunk 1\n\nChunk 2\n\nChunk 3", "What is AI?"
     )
     mock_create_completion.assert_called_once_with("Generated Prompt")
+
     captured = capsys.readouterr()
     assert "LLM Answer" in captured.out
-
-
-def test_prepare_prompt_context(service):
-    """Should prepare the prompt context correctly."""
-
-    context = service._CompletionService__prepare_prompt_context("test query", k=3)
-
-    assert context == "Chunk 1\n\nChunk 2\n\nChunk 3"

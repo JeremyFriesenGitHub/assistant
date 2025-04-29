@@ -1,6 +1,7 @@
 from completions.prompts import create_prompt
 from infrastructure.ollama import create_completion
 from infrastructure.db.source_repository import SourceRepository
+from completions.services.context_generation_service import ContextGenerationService
 
 
 class CompletionService:
@@ -8,7 +9,7 @@ class CompletionService:
         self.repository = repository
 
     def create_completion(self, query, k=3):
-        prompt_context = self.__prepare_prompt_context(query, k)
+        prompt_context = ContextGenerationService(query, self.repository).process(k)
 
         print("\n🧠 Answering with context:\n")
         print(prompt_context)
@@ -16,8 +17,3 @@ class CompletionService:
 
         answer = create_completion(create_prompt(prompt_context, query))
         print(answer)
-
-    def __prepare_prompt_context(self, query, k):
-        chunks = self.repository.get_top_k_chunks_by_similarity(query, k)
-        context = "\n\n".join(chunk.content for chunk in chunks)
-        return context
