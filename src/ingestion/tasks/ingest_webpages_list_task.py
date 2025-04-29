@@ -2,7 +2,7 @@ import json
 
 from config import WEBPAGES_LIST
 from .ingest_webpage_task import ingest_webpage  # the actual task
-from apps.celery import celery
+from config.celery import celery
 
 
 @celery.task

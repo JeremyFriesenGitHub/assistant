@@ -1,3 +1,5 @@
+# NOTE: This application is intended to be run for development purposes only.
+
 from completions import CompletionService
 from infrastructure.db.source_repository import SourceRepository
 

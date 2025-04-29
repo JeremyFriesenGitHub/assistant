@@ -1,6 +1,6 @@
 from ingestion.services.webpage_ingestion_service import WebpageIngestionService
 from infrastructure.db.source_repository import SourceRepository
-from apps.celery import celery
+from config.celery import celery
 
 
 @celery.task
