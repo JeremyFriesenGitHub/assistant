@@ -1,4 +1,4 @@
-from agent.prompts import create_prompt
+from completions.prompts import create_prompt
 from infrastructure.ollama import create_completion
 from infrastructure.db.source_repository import SourceRepository
 

@@ -1,4 +1,4 @@
-from agent import ResponseService
+from completions import ResponseService
 from infrastructure.db.source_repository import SourceRepository
 
 if __name__ == "__main__":

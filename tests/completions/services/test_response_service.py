@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from agent import ResponseService
+from completions import ResponseService
 
 
 @pytest.fixture
@@ -19,8 +19,13 @@ def service(fake_repository):
     return ResponseService(repository=fake_repository)
 
 
-@patch("agent.services.response_service.create_completion", return_value="LLM Answer")
-@patch("agent.services.response_service.create_prompt", return_value="Generated Prompt")
+@patch(
+    "completions.services.response_service.create_completion", return_value="LLM Answer"
+)
+@patch(
+    "completions.services.response_service.create_prompt",
+    return_value="Generated Prompt",
+)
 def test_ask_question(mock_create_prompt, mock_create_completion, service, capsys):
     """Should call the LLM with the correct prompt and print the answer."""
 
