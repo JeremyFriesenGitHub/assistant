@@ -1,5 +1,5 @@
 from agent.prompts import create_prompt
-from infrastructure.ollama import create_llm_response
+from infrastructure.ollama import create_completion
 from infrastructure.db.source_repository import SourceRepository
 
 
@@ -14,7 +14,7 @@ class ResponseService:
         print(prompt_context)
         print("\n💬 LLM Answer:\n")
 
-        answer = create_llm_response(create_prompt(prompt_context, query))
+        answer = create_completion(create_prompt(prompt_context, query))
         print(answer)
 
     def __prepare_prompt_context(self, query, k):

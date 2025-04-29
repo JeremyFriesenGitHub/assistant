@@ -19,9 +19,9 @@ def service(fake_repository):
     return ResponseService(repository=fake_repository)
 
 
-@patch("agent.services.response_service.create_llm_response", return_value="LLM Answer")
+@patch("agent.services.response_service.create_completion", return_value="LLM Answer")
 @patch("agent.services.response_service.create_prompt", return_value="Generated Prompt")
-def test_ask_question(mock_create_prompt, mock_create_llm_response, service, capsys):
+def test_ask_question(mock_create_prompt, mock_create_completion, service, capsys):
     """Should call the LLM with the correct prompt and print the answer."""
 
     service.ask_question("What is AI?", k=3)
@@ -32,7 +32,7 @@ def test_ask_question(mock_create_prompt, mock_create_llm_response, service, cap
     mock_create_prompt.assert_called_once_with(
         "Chunk 1\n\nChunk 2\n\nChunk 3", "What is AI?"
     )
-    mock_create_llm_response.assert_called_once_with("Generated Prompt")
+    mock_create_completion.assert_called_once_with("Generated Prompt")
     captured = capsys.readouterr()
     assert "LLM Answer" in captured.out
 
