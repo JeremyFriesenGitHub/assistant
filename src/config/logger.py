@@ -2,13 +2,13 @@ import logging
 import json
 from typing import Optional, Dict, Any
 
-# ANSI escape codes
+# ANSI escape codes for colors
 LOG_COLORS = {
-    "DEBUG": "\033[94m",  # Blue
-    "INFO": "\033[92m",  # Green
-    "WARNING": "\033[93m",  # Yellow
-    "ERROR": "\033[91m",  # Red
-    "RESET": "\033[0m",  # Reset to default
+    "DEBUG": "\033[94m",
+    "INFO": "\033[92m",
+    "WARNING": "\033[93m",
+    "ERROR": "\033[91m",
+    "RESET": "\033[0m",
 }
 
 
@@ -23,14 +23,16 @@ class ColorFormatter(logging.Formatter):
 class SemanticLogger:
     def __init__(self, name: Optional[str] = None):
         self.logger = logging.getLogger(name or __name__)
-        handler = logging.StreamHandler()
+        self.logger.propagate = False  # 🔒 Prevent double logging
 
-        formatter = ColorFormatter("%(asctime)s [%(levelname)s] %(message)s")
-        handler.setFormatter(formatter)
+        # Only add handler if none exist
+        if not self.logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = ColorFormatter("%(asctime)s [%(levelname)s] %(message)s")
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
 
         self.logger.setLevel(logging.INFO)
-        if not self.logger.hasHandlers():
-            self.logger.addHandler(handler)
 
     def info(self, event: str, **data: Any):
         self.logger.info(self._format(event, data))
@@ -49,5 +51,4 @@ class SemanticLogger:
         return json.dumps(structured)
 
 
-# Usage
-logger = SemanticLogger()
+logger = SemanticLogger(__name__)

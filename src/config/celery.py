@@ -1,3 +1,7 @@
+import logging
+
+logging.getLogger("sqlalchemy.engine.Engine").disabled = True
+
 from celery import Celery
 
 celery = Celery(

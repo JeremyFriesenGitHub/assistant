@@ -3,6 +3,7 @@ from config import EMBEDDING_MODEL
 from infrastructure.web import fetch_webpage
 from infrastructure.db.source_repository import SourceRepository
 from ingestion.services.webpage_parser_service import WebpageParserService
+from config import logger
 
 # NOTE: Solves the follow error:
 # Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.
@@ -16,10 +17,15 @@ class WebpageIngestionService:
 
     def process(self):
         try:
-            print(f"🌐 Fetching content from: {self.url}")
+            logger.info("webpage_ingestion_service.process", url=self.url)
             self.__ingest_webpage()
         except Exception as e:
-            print(f"⚠️ Failed to fetch {self.url}: {e}")
+            logger.error(
+                "webpage_ingestion_service.error",
+                url=self.url,
+                error=str(e),
+            )
+            raise e
 
     def __ingest_webpage(self):
         webpage = fetch_webpage(self.url)
