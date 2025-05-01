@@ -32,11 +32,13 @@ prompt_toolkit==3.0.51
 psycopg2-binary==2.9.10
 PyMuPDF==1.25.5
 pytest==8.3.5
+pytest-describe==2.2.0
 python-dateutil==2.9.0.post0
 PyYAML==6.0.2
 redis==5.2.1
 regex==2024.11.6
 requests==2.32.3
+result==0.17.0
 safetensors==0.5.3
 scikit-learn==1.6.1
 scipy==1.15.2

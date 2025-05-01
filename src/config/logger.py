@@ -25,7 +25,6 @@ class SemanticLogger:
         self.logger = logging.getLogger(name or __name__)
         self.logger.propagate = False  # 🔒 Prevent double logging
 
-        # Only add handler if none exist
         if not self.logger.handlers:
             handler = logging.StreamHandler()
             formatter = ColorFormatter("%(asctime)s [%(levelname)s] %(message)s")
@@ -48,7 +47,7 @@ class SemanticLogger:
 
     def _format(self, event: str, data: Dict[str, Any]) -> str:
         structured = {"event": event, **data}
-        return json.dumps(structured)
+        return json.dumps(structured, default=str)
 
 
 logger = SemanticLogger(__name__)
