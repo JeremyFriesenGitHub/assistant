@@ -2,61 +2,92 @@
 
 *Description coming soon.*
 
-## 1. Install Dependencies
+## Setup Instructions
+
+1. Install Ollama
 
 ```bash
-pip install -r requirements.txt
+brew install ollama
 ```
 
-## 2. Set Up Ollama LLM
-
-Start the Ollama server and pull the required model:
+2. Pull the Mistral model
 
 ```bash
 ollama serve
 ollama pull mistral
-ollama run mistral
 ```
 
-## 3. Set Up the Database
+3. Install Docker
 
-Run Alembic to create and apply database migrations:
+Install Docker Desktop: https://www.docker.com/products/docker-desktop/
 
 ```bash
-alembic -c src/infrastructure/db/alembic.ini revision --autogenerate -m "initial migration"
+brew install docker-compose
+```
+
+4. Run Docker Compose
+
+```bash
+docker-compose up
+```
+
+5. Install More Stuff
+
+```bash
+brew install libpq && brew link --force libpq
+brew install openssl@3
+```
+
+6. Create a virtual environment
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+7. Install dependencies
+
+```bash
+env \
+  LDFLAGS="-L/opt/homebrew/opt/openssl@3/lib" \
+  CPPFLAGS="-I/opt/homebrew/opt/openssl@3/include" \
+  PKG_CONFIG_PATH="/opt/homebrew/opt/openssl@3/lib/pkgconfig" \
+  pip install -r requirements.txt
+```
+
+8. Run Migrations
+
+```bash
 alembic -c src/infrastructure/db/alembic.ini upgrade head
 ```
 
-> Make sure your database connection URL is properly configured in `src/infrastructure/db/alembic.ini` and your SQLAlchemy settings.
 
-## 4. Run Celery Worker
+## Run Data Ingestion
 
-Start the Celery worker to process tasks:
-
-### Development (single-threaded)
+In one terminal, activate your virtual environment and run Celery:
 
 ```bash
-PYTHONPATH=src celery -A infrastructure.celery worker --loglevel=info --pool=solo
+source venv/bin/activate
+PYTHONPATH=src celery -A config.celery worker --loglevel=info --pool=solo
 ```
 
-### Production-like (multi-threaded)
+Then in another terminal run the data ingestion script:
 
 ```bash
-PYTHONPATH=src celery -A services.celery worker --pool=threads --concurrency=12
+source venv/bin/activate
+make post-deploy
 ```
 
-## 5. Running Tests
-
-Run the full test suite using Pytest:
+## Run Dev CLI
 
 ```bash
-PYTHONPATH=src pytest
+source venv/bin/activate
+make dev-cli
 ```
 
-## 6. Updating `requirements.txt`
-
-After installing new packages, freeze your environment:
+## Run Tests
 
 ```bash
-pip freeze > requirements.txt
+source venv/bin/activate
+make test
 ```

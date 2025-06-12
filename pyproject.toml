@@ -1,8 +1,9 @@
 [tool.black]
 line-length = 88
-target-version = ["py312"]
+target-version = ["py311"]
 exclude = '''
 (
-    infrastructure/db/versions/781a41a2f89f_init\.py
+    venv
+    | infrastructure/db/versions/781a41a2f89f_init\.py
 )
 '''
