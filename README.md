@@ -82,7 +82,7 @@ make post-deploy
 
 ```bash
 source venv/bin/activate
-make dev-cli
+make dev
 ```
 
 ## Run Tests
